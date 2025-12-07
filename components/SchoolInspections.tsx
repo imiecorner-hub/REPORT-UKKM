@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, X, Save, Building2, Calendar as CalendarIcon, Pencil, FileDown } from 'lucide-react';
+import { Search, Filter, Plus, X, Save, Building2, Calendar as CalendarIcon, Pencil, FileDown, LayoutList, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SCHOOL_INSPECTIONS } from '../constants';
 import { SchoolInspection } from '../types';
 import jsPDF from 'jspdf';
@@ -11,6 +11,10 @@ const SchoolInspections: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('ALL');
   
+  // View Mode State
+  const [viewMode, setViewMode] = useState<'TABLE' | 'CALENDAR'>('TABLE');
+  const [calendarDate, setCalendarDate] = useState(new Date(2025, 3, 1)); // Default to April 2025 as per data
+
   // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -60,6 +64,20 @@ const SchoolInspections: React.FC = () => {
     const dateObj = new Date(dateVal);
     if (isNaN(dateObj.getTime())) return dateVal;
     return `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
+  };
+
+  // Helper to parse DD/MM/YYYY to Date object
+  const parseDateStr = (dateStr?: string) => {
+    if (!dateStr) return null;
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
+      let year = parseInt(parts[2], 10);
+      if (year < 100) year += 2000;
+      return new Date(year, month, day);
+    }
+    return null;
   };
 
   const handleEdit = (school: SchoolInspection) => {
@@ -238,29 +256,136 @@ const SchoolInspections: React.FC = () => {
     </div>
   );
 
+  // Calendar Rendering Logic
+  const handlePrevMonth = () => {
+    setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1));
+  };
+
+  const renderCalendar = () => {
+    const year = calendarDate.getFullYear();
+    const month = calendarDate.getMonth();
+    
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const days = [];
+    
+    // Empty cells for previous month padding
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<div key={`pad-${i}`} className="bg-slate-50 border border-slate-100 min-h-[100px]"></div>);
+    }
+
+    // Days of current month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const currentDate = new Date(year, month, day);
+      
+      // Find events for this day
+      const events = filteredSchools.flatMap(school => {
+        const matches = [];
+        const date1 = parseDateStr(school.visitDate1);
+        const date2 = parseDateStr(school.visitDate2);
+        const date3 = parseDateStr(school.visitDate3);
+
+        if (date1 && date1.getTime() === currentDate.getTime()) matches.push({ ...school, type: 1 });
+        if (date2 && date2.getTime() === currentDate.getTime()) matches.push({ ...school, type: 2 });
+        if (date3 && date3.getTime() === currentDate.getTime()) matches.push({ ...school, type: 3 });
+        return matches;
+      });
+
+      days.push(
+        <div key={day} className="bg-white border border-slate-200 min-h-[100px] p-1 md:p-2 hover:bg-slate-50 transition-colors">
+          <div className="text-right">
+            <span className={`text-xs font-semibold ${
+               // Highlight today
+               new Date().toDateString() === currentDate.toDateString() 
+                 ? 'bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded-full ml-auto'
+                 : 'text-slate-500'
+            }`}>
+              {day}
+            </span>
+          </div>
+          <div className="mt-1 space-y-1">
+            {events.map((evt, idx) => (
+              <button 
+                key={`${evt.id}-${evt.type}-${idx}`}
+                onClick={() => handleEdit(evt)}
+                className={`w-full text-left text-[9px] md:text-[10px] px-1.5 py-1 rounded border truncate transition-transform hover:scale-105 ${
+                  evt.type === 1 ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                  evt.type === 2 ? 'bg-purple-50 text-purple-700 border-purple-100' :
+                  'bg-orange-50 text-orange-700 border-orange-100'
+                }`}
+              >
+                <span className="font-bold mr-1">L{evt.type}:</span>
+                {evt.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-b-xl overflow-hidden">
+        {['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'].map(day => (
+          <div key={day} className="bg-slate-100 p-2 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">
+            {day}
+          </div>
+        ))}
+        {days}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 relative">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Senarai Pemeriksaan Sekolah</h2>
           <p className="text-slate-500">Jadual dan status pemeriksaan premis sekolah.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-           <button 
-             onClick={openAddModal}
-             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm flex-1 sm:flex-none justify-center"
-           >
-             <Plus className="w-4 h-4" /> Tambah Rekod
-           </button>
-           <button 
-             onClick={generatePDF}
-             className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 flex-1 sm:flex-none justify-center"
-           >
-             <FileDown className="w-4 h-4" /> Report
-           </button>
-           <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 flex-1 sm:flex-none justify-center">
-             <Filter className="w-4 h-4" /> Export
-           </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+           
+           {/* View Toggle */}
+           <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 self-start sm:self-auto">
+             <button
+               onClick={() => setViewMode('TABLE')}
+               className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                 viewMode === 'TABLE' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+               }`}
+             >
+               <LayoutList className="w-4 h-4" /> <span className="hidden md:inline">Senarai</span>
+             </button>
+             <button
+               onClick={() => setViewMode('CALENDAR')}
+               className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                 viewMode === 'CALENDAR' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+               }`}
+             >
+               <CalendarIcon className="w-4 h-4" /> <span className="hidden md:inline">Kalendar</span>
+             </button>
+           </div>
+
+           <div className="flex flex-wrap gap-2 flex-1 sm:flex-none">
+             <button 
+               onClick={openAddModal}
+               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm flex-1 sm:flex-none justify-center"
+             >
+               <Plus className="w-4 h-4" /> Tambah
+             </button>
+             <button 
+               onClick={generatePDF}
+               className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 flex-1 sm:flex-none justify-center"
+             >
+               <FileDown className="w-4 h-4" /> Report
+             </button>
+             <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 flex-1 sm:flex-none justify-center">
+               <Filter className="w-4 h-4" /> Export
+             </button>
+          </div>
         </div>
       </div>
 
@@ -288,91 +413,111 @@ const SchoolInspections: React.FC = () => {
         </select>
       </div>
 
-      {/* Data Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* Removed min-w-[1000px] to allow fit to screen */}
-        <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
-          <table className="w-full text-left border-collapse table-fixed md:table-auto">
-            <thead>
-              <tr className="bg-slate-100 border-b-2 border-slate-200">
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-8 border-r border-slate-200 text-center">BIL</th>
-                <th className="px-2 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider border-r border-slate-200 sticky left-0 bg-slate-100 z-10 w-[150px] md:w-auto">NAMA SEKOLAH</th>
-                
-                {/* Visit 1 */}
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 1</th>
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
-                
-                {/* Visit 2 */}
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 2</th>
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
+      {/* VIEW CONTENT */}
+      {viewMode === 'TABLE' ? (
+        /* TABLE VIEW */
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
+          <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
+            <table className="w-full text-left border-collapse table-fixed md:table-auto">
+              <thead>
+                <tr className="bg-slate-100 border-b-2 border-slate-200">
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-8 border-r border-slate-200 text-center">BIL</th>
+                  <th className="px-2 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider border-r border-slate-200 sticky left-0 bg-slate-100 z-10 w-[150px] md:w-auto">NAMA SEKOLAH</th>
+                  
+                  {/* Visit 1 */}
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 1</th>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
+                  
+                  {/* Visit 2 */}
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 2</th>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
 
-                {/* Visit 3 */}
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 3</th>
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
+                  {/* Visit 3 */}
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 3</th>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
 
-                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center w-12">EDIT</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredSchools.length > 0 ? (
-                filteredSchools.map((school, index) => (
-                  <tr key={school.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{index + 1}</td>
-                    <td className="px-2 py-1.5 text-[10px] md:text-xs font-semibold text-slate-800 border-r border-slate-100 uppercase sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] truncate max-w-[150px] md:max-w-none md:whitespace-normal" title={school.name}>{school.name}</td>
-                    
-                    {/* Visit 1 Data */}
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate1}</td>
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah1 || ''}</td>
-                    <td className="px-1 py-1.5 text-center border-r border-slate-100">
-                      <CheckboxSquare checked={school.fosim1} onClick={() => handleToggleFosim(school.id, 1)} />
-                    </td>
+                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center w-12">EDIT</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredSchools.length > 0 ? (
+                  filteredSchools.map((school, index) => (
+                    <tr key={school.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{index + 1}</td>
+                      <td className="px-2 py-1.5 text-[10px] md:text-xs font-semibold text-slate-800 border-r border-slate-100 uppercase sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] truncate max-w-[150px] md:max-w-none md:whitespace-normal" title={school.name}>{school.name}</td>
+                      
+                      {/* Visit 1 Data */}
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate1}</td>
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah1 || ''}</td>
+                      <td className="px-1 py-1.5 text-center border-r border-slate-100">
+                        <CheckboxSquare checked={school.fosim1} onClick={() => handleToggleFosim(school.id, 1)} />
+                      </td>
 
-                    {/* Visit 2 Data */}
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate2 || ''}</td>
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah2 || ''}</td>
-                    <td className="px-1 py-1.5 text-center border-r border-slate-100">
-                      <CheckboxSquare checked={school.fosim2} onClick={() => handleToggleFosim(school.id, 2)} />
-                    </td>
+                      {/* Visit 2 Data */}
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate2 || ''}</td>
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah2 || ''}</td>
+                      <td className="px-1 py-1.5 text-center border-r border-slate-100">
+                        <CheckboxSquare checked={school.fosim2} onClick={() => handleToggleFosim(school.id, 2)} />
+                      </td>
 
-                    {/* Visit 3 Data */}
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate3 || ''}</td>
-                    <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah3 || ''}</td>
-                    <td className="px-1 py-1.5 text-center border-r border-slate-100">
-                      <CheckboxSquare checked={school.fosim3} onClick={() => handleToggleFosim(school.id, 3)} />
-                    </td>
+                      {/* Visit 3 Data */}
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate3 || ''}</td>
+                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah3 || ''}</td>
+                      <td className="px-1 py-1.5 text-center border-r border-slate-100">
+                        <CheckboxSquare checked={school.fosim3} onClick={() => handleToggleFosim(school.id, 3)} />
+                      </td>
 
-                    <td className="px-1 py-1.5 text-center">
-                      <button 
-                        onClick={() => handleEdit(school)}
-                        className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                        title="Kemas kini"
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </button>
+                      <td className="px-1 py-1.5 text-center">
+                        <button 
+                          onClick={() => handleEdit(school)}
+                          className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                          title="Kemas kini"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={12} className="px-6 py-8 text-center text-slate-500">
+                      Tiada rekod dijumpai.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={12} className="px-6 py-8 text-center text-slate-500">
-                    Tiada rekod dijumpai.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="bg-slate-50 px-4 md:px-6 py-4 border-t border-slate-200 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <p className="text-sm text-slate-500 text-center md:text-left">Menunjukkan {filteredSchools.length} daripada {inspections.length} rekod</p>
-          <div className="flex gap-2 w-full md:w-auto justify-center">
-            <button className="px-3 py-1 border border-slate-300 rounded text-sm text-slate-600 disabled:opacity-50" disabled>Sebelumnya</button>
-            <button className="px-3 py-1 border border-slate-300 rounded text-sm text-slate-600 disabled:opacity-50" disabled>Seterusnya</button>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="bg-slate-50 px-4 md:px-6 py-4 border-t border-slate-200 flex flex-col md:flex-row gap-4 justify-between items-center">
+            <p className="text-sm text-slate-500 text-center md:text-left">Menunjukkan {filteredSchools.length} daripada {inspections.length} rekod</p>
+            <div className="flex gap-2 w-full md:w-auto justify-center">
+              <button className="px-3 py-1 border border-slate-300 rounded text-sm text-slate-600 disabled:opacity-50" disabled>Sebelumnya</button>
+              <button className="px-3 py-1 border border-slate-300 rounded text-sm text-slate-600 disabled:opacity-50" disabled>Seterusnya</button>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        /* CALENDAR VIEW */
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm animate-fade-in">
+          {/* Calendar Header */}
+          <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 rounded-t-xl">
+             <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
+               <ChevronLeft className="w-5 h-5 text-slate-600" />
+             </button>
+             <h3 className="text-lg font-bold text-slate-800 capitalize">
+               {calendarDate.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' })}
+             </h3>
+             <button onClick={handleNextMonth} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
+               <ChevronRight className="w-5 h-5 text-slate-600" />
+             </button>
+          </div>
+          {/* Calendar Grid */}
+          {renderCalendar()}
+        </div>
+      )}
 
       {/* Add/Edit Modal */}
       {isModalOpen && (

@@ -42,6 +42,12 @@ export interface StatMetric {
   icon: any;
 }
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  picture: string;
+}
+
 export enum PageView {
   DASHBOARD = 'DASHBOARD',
   SCHOOLS = 'SCHOOLS',
