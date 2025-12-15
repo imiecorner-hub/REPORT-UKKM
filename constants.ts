@@ -17,7 +17,67 @@ export const WEEKLY_SCHEDULE: WeeklySchedule[] = [
   { week: 52, startDate: '22/12/2025', endDate: '28/12/2025', month: 12 },
 ];
 
-export const SCHOOL_INSPECTIONS: SchoolInspection[] = [];
+export const SCHOOL_INSPECTIONS: SchoolInspection[] = [
+  // Existing Data (1-13)
+  { id: 1, name: 'SK SIK', category: 'SEKOLAH KPM', visitDate1: '28/4/2025', visitDate2: '2/9/2025' },
+  { id: 2, name: 'SK SIK DALAM', category: 'SEKOLAH KPM', visitDate1: '16/4/2025' },
+  { id: 3, name: 'SJK(C) CHUNG HWA', category: 'SEKOLAH KPM', visitDate1: '30/6/2025' },
+  { id: 4, name: 'SK HUJUNG BANDAR', category: 'SEKOLAH KPM', visitDate1: '19/6/2025', visitDate2: '21/9/2025' },
+  { id: 5, name: 'SK PAYA TERENDAM', category: 'SEKOLAH KPM', visitDate1: '16/4/2025' },
+  { id: 6, name: 'SK BATU LIMA', category: 'SEKOLAH KPM', visitDate1: '17/6/2025' },
+  { id: 7, name: 'SK SERI DUSUN', category: 'SEKOLAH KPM', visitDate1: '25/2/2025', visitDate2: '2/9/2025' },
+  { id: 8, name: 'SK CHEPIR', category: 'SEKOLAH KPM', visitDate1: '27/5/2025', visitDate2: '13/8/2025' },
+  { id: 9, name: 'SK BATU 8', category: 'SEKOLAH KPM', visitDate1: '29/4/2025', visitDate2: '21/9/2025' },
+  { id: 10, name: 'SK KOTA AUR', category: 'SEKOLAH KPM', visitDate1: '28/5/2025', visitDate2: '28/10/25' },
+  { id: 11, name: 'SK GULAU', category: 'SEKOLAH KPM', visitDate1: '24/6/2025' },
+  { id: 12, name: 'SK AMPANG MUDA', category: 'SEKOLAH KPM', visitDate1: '28/5/2025', visitDate2: '28/10/2025' },
+  { id: 13, name: 'SK TELOI TUA', category: 'SEKOLAH KPM', visitDate1: '13/5/2025' },
+  
+  // New Data - SK Series (14-23)
+  { id: 14, name: 'SK FELDA TELOI TIMUR', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 15, name: 'SK CHEMARA', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 16, name: 'SK HAJI HUSSAIN', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 17, name: 'SK BANDAR BARU BERIS JAYA', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 18, name: 'SK JENERI', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 19, name: 'SK PADANG CHICAK', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 20, name: 'SK KAMPUNG BETONG', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 21, name: 'SK KALAI', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 22, name: 'SK KOTA BUKIT', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 23, name: 'SK DANGLAU', category: 'SEKOLAH KPM', visitDate1: '' },
+
+  // New Data - SM Series (24-31)
+  { id: 24, name: 'SM SIK', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 25, name: 'SM AGAMA SIK', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 26, name: 'SM SERI ENGGANG', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 27, name: 'SM CHEPIR', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 28, name: 'SM AGAMA MAKTAB MAHMUD', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 29, name: 'SM BATU 8', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 30, name: 'SM GULAU', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 31, name: 'SM JENERI', category: 'SEKOLAH KPM', visitDate1: '' },
+
+  // New Data - DAS (Asrama) Series (32-40)
+  { id: 32, name: 'DAS SM SIK', category: 'ASRAMA', visitDate1: '' },
+  { id: 33, name: 'DAS SM AGAMA SIK', category: 'ASRAMA', visitDate1: '' },
+  { id: 34, name: 'DAS SM SERI ENGGANG', category: 'ASRAMA', visitDate1: '' },
+  { id: 35, name: 'DAS SM CHEPIR', category: 'ASRAMA', visitDate1: '' },
+  { id: 36, name: 'DAS SM AGAMA MAKTAB MAHMUD', category: 'ASRAMA', visitDate1: '' },
+  { id: 37, name: 'DAS SK GULAU', category: 'ASRAMA', visitDate1: '' },
+  { id: 38, name: 'DAS SM GULAU', category: 'ASRAMA', visitDate1: '' },
+  { id: 39, name: 'DAS SM JENERI', category: 'ASRAMA', visitDate1: '' },
+  { id: 40, name: 'DAS SK PAYA TERENDAM', category: 'ASRAMA', visitDate1: '' },
+  
+  // Religious Schools & DAS
+  { id: 41, name: 'SM AGAMA IRSYADIAH', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 42, name: 'DAS SM AGAMA IRSYADIAH', category: 'ASRAMA', visitDate1: '' },
+  { id: 43, name: 'MAAHAD DINI SULTAN ABDUL HALIM', category: 'SEKOLAH JHEAIK', visitDate1: '' },
+
+  // Facilities & IPT
+  { id: 44, name: 'DAPUR HOSPITAL SIK', category: 'FASILITI KKM', visitDate1: '' },
+  { id: 45, name: 'KANTIN HOSPITAL SIK (KAFE)', category: 'SWASTA', visitDate1: '' },
+  { id: 46, name: 'KAFE KEDA (IPTA)', category: 'IPT', visitDate1: '' },
+  { id: 47, name: 'KAFE IKM (IPTA)', category: 'IPT', visitDate1: '' },
+  { id: 48, name: 'KAFE KOLEJ KOMUNITI', category: 'IPT', visitDate1: '' },
+];
 
 export const SAMPLES: SampleRecord[] = [
   { 
