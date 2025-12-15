@@ -181,7 +181,7 @@ const SchoolInspections: React.FC = () => {
     const doc = new jsPDF({ orientation: 'landscape' });
     
     doc.setFontSize(18);
-    doc.text('Laporan Pemeriksaan Sekolah 2025', 14, 20);
+    doc.text('Laporan Pemeriksaan Premis Makanan 2025', 14, 20);
     
     doc.setFontSize(10);
     doc.text(`Tarikh Laporan: ${new Date().toLocaleDateString('ms-MY')}`, 14, 28);
@@ -246,7 +246,7 @@ const SchoolInspections: React.FC = () => {
       }
     });
 
-    doc.save('Laporan_Pemeriksaan_Sekolah_2025.pdf');
+    doc.save('Laporan_Pemeriksaan_Premis_2025.pdf');
   };
 
   // Checkbox component for visual consistency
@@ -438,8 +438,8 @@ const SchoolInspections: React.FC = () => {
     <div className="space-y-6 relative">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Senarai Pemeriksaan Sekolah</h2>
-          <p className="text-slate-500">Jadual dan status pemeriksaan premis sekolah mengikut kategori.</p>
+          <h2 className="text-2xl font-bold text-slate-900">Pemeriksaan Premis Makanan</h2>
+          <p className="text-slate-500">Jadual dan status pemeriksaan premis makanan mengikut kategori</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
            
