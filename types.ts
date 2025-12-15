@@ -34,6 +34,18 @@ export interface SampleRecord {
   notes?: string;
 }
 
+export interface RampasanRecord {
+  id: number;
+  date: string;
+  premise: string;
+  item: string;
+  quantity: number;
+  unit: string;
+  value: number; // In Ringgit
+  reason: 'TAMAT TARIKH' | 'KEMIK/ROSAK' | 'LABEL' | 'LAIN-LAIN';
+  act: string; // e.g., "Seksyen 4(1)(f)"
+}
+
 export interface StatMetric {
   title: string;
   value: number;
@@ -42,15 +54,10 @@ export interface StatMetric {
   icon: any;
 }
 
-export interface UserProfile {
-  name: string;
-  email: string;
-  picture: string;
-}
-
 export enum PageView {
   DASHBOARD = 'DASHBOARD',
   SCHOOLS = 'SCHOOLS',
   SAMPLES = 'SAMPLES',
-  SCHEDULE = 'SCHEDULE'
+  SCHEDULE = 'SCHEDULE',
+  RAMPASAN = 'RAMPASAN'
 }

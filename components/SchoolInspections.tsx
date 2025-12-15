@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, X, Save, Building2, Calendar as CalendarIcon, Pencil, FileDown, LayoutList, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, Plus, X, Save, Building2, Calendar as CalendarIcon, Pencil, FileDown, LayoutList, ChevronLeft, ChevronRight, Utensils, Home, Briefcase } from 'lucide-react';
 import { SCHOOL_INSPECTIONS } from '../constants';
 import { SchoolInspection } from '../types';
 import jsPDF from 'jspdf';
@@ -31,11 +31,19 @@ const SchoolInspections: React.FC = () => {
     markah3: ''
   });
 
+  // Filter Logic
   const filteredSchools = inspections.filter(school => {
     const matchesSearch = school.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterCategory === 'ALL' || school.category === filterCategory;
     return matchesSearch && matchesFilter;
   });
+
+  // Grouping Logic
+  const groupedInspections = {
+    kantin: filteredSchools.filter(s => ['SEKOLAH KPM', 'SEKOLAH JHEAIK'].includes(s.category)),
+    das: filteredSchools.filter(s => s.category === 'ASRAMA'),
+    lain: filteredSchools.filter(s => !['SEKOLAH KPM', 'SEKOLAH JHEAIK', 'ASRAMA'].includes(s.category))
+  };
 
   const categories = Array.from(new Set(inspections.map(s => s.category)));
 
@@ -190,6 +198,7 @@ const SchoolInspections: React.FC = () => {
 
     const tableRows: any[] = [];
 
+    // Use filtered list for PDF so it matches search results
     filteredSchools.forEach((school, index) => {
       const rowData = [
         index + 1,
@@ -340,12 +349,97 @@ const SchoolInspections: React.FC = () => {
     );
   };
 
+  const renderTableSection = (title: string, data: SchoolInspection[], icon: any, headerBg: string, headerText: string) => {
+    if (data.length === 0) return null;
+    const Icon = icon;
+
+    return (
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in mb-8 last:mb-0">
+        <div className={`px-4 md:px-6 py-4 border-b border-slate-200 ${headerBg} flex justify-between items-center`}>
+          <div className="flex items-center gap-2">
+             <Icon className={`w-5 h-5 ${headerText} opacity-80`} />
+             <h3 className={`font-bold text-lg ${headerText}`}>{title}</h3>
+          </div>
+          <span className="text-xs font-bold bg-white/60 px-2 py-1 rounded-md text-slate-700 shadow-sm">
+             {data.length} Rekod
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse table-fixed md:table-auto">
+            <thead>
+              <tr className="bg-slate-50 border-b-2 border-slate-200">
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-8 border-r border-slate-200 text-center">BIL</th>
+                <th className="px-2 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider border-r border-slate-200 sticky left-0 bg-slate-50 z-10 w-[150px] md:w-auto">NAMA PREMIS</th>
+                
+                {/* Visit 1 */}
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 1</th>
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
+                
+                {/* Visit 2 */}
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 2</th>
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
+
+                {/* Visit 3 */}
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 3</th>
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
+
+                <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center w-12">EDIT</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {data.map((school, index) => (
+                <tr key={school.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{index + 1}</td>
+                  <td className="px-2 py-1.5 text-[10px] md:text-xs font-semibold text-slate-800 border-r border-slate-100 uppercase sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] truncate max-w-[150px] md:max-w-none md:whitespace-normal" title={school.name}>{school.name}</td>
+                  
+                  {/* Visit 1 Data */}
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate1}</td>
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah1 || ''}</td>
+                  <td className="px-1 py-1.5 text-center border-r border-slate-100">
+                    <CheckboxSquare checked={school.fosim1} onClick={() => handleToggleFosim(school.id, 1)} />
+                  </td>
+
+                  {/* Visit 2 Data */}
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate2 || ''}</td>
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah2 || ''}</td>
+                  <td className="px-1 py-1.5 text-center border-r border-slate-100">
+                    <CheckboxSquare checked={school.fosim2} onClick={() => handleToggleFosim(school.id, 2)} />
+                  </td>
+
+                  {/* Visit 3 Data */}
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate3 || ''}</td>
+                  <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah3 || ''}</td>
+                  <td className="px-1 py-1.5 text-center border-r border-slate-100">
+                    <CheckboxSquare checked={school.fosim3} onClick={() => handleToggleFosim(school.id, 3)} />
+                  </td>
+
+                  <td className="px-1 py-1.5 text-center">
+                    <button 
+                      onClick={() => handleEdit(school)}
+                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      title="Kemas kini"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 relative">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Senarai Pemeriksaan Sekolah</h2>
-          <p className="text-slate-500">Jadual dan status pemeriksaan premis sekolah.</p>
+          <p className="text-slate-500">Jadual dan status pemeriksaan premis sekolah mengikut kategori.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
            
@@ -415,89 +509,21 @@ const SchoolInspections: React.FC = () => {
 
       {/* VIEW CONTENT */}
       {viewMode === 'TABLE' ? (
-        /* TABLE VIEW */
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
-          <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
-            <table className="w-full text-left border-collapse table-fixed md:table-auto">
-              <thead>
-                <tr className="bg-slate-100 border-b-2 border-slate-200">
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-8 border-r border-slate-200 text-center">BIL</th>
-                  <th className="px-2 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider border-r border-slate-200 sticky left-0 bg-slate-100 z-10 w-[150px] md:w-auto">NAMA SEKOLAH</th>
-                  
-                  {/* Visit 1 */}
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 1</th>
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
-                  
-                  {/* Visit 2 */}
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 2</th>
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
-
-                  {/* Visit 3 */}
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-20">TARIKH<br/>LAWATAN 3</th>
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-12">MARKAH</th>
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center border-r border-slate-200 w-10">FOSIM</th>
-
-                  <th className="px-1 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-center w-12">EDIT</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredSchools.length > 0 ? (
-                  filteredSchools.map((school, index) => (
-                    <tr key={school.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{index + 1}</td>
-                      <td className="px-2 py-1.5 text-[10px] md:text-xs font-semibold text-slate-800 border-r border-slate-100 uppercase sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] truncate max-w-[150px] md:max-w-none md:whitespace-normal" title={school.name}>{school.name}</td>
-                      
-                      {/* Visit 1 Data */}
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate1}</td>
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah1 || ''}</td>
-                      <td className="px-1 py-1.5 text-center border-r border-slate-100">
-                        <CheckboxSquare checked={school.fosim1} onClick={() => handleToggleFosim(school.id, 1)} />
-                      </td>
-
-                      {/* Visit 2 Data */}
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate2 || ''}</td>
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah2 || ''}</td>
-                      <td className="px-1 py-1.5 text-center border-r border-slate-100">
-                        <CheckboxSquare checked={school.fosim2} onClick={() => handleToggleFosim(school.id, 2)} />
-                      </td>
-
-                      {/* Visit 3 Data */}
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100 font-medium whitespace-nowrap">{school.visitDate3 || ''}</td>
-                      <td className="px-1 py-1.5 text-[10px] md:text-xs text-slate-600 text-center border-r border-slate-100">{school.markah3 || ''}</td>
-                      <td className="px-1 py-1.5 text-center border-r border-slate-100">
-                        <CheckboxSquare checked={school.fosim3} onClick={() => handleToggleFosim(school.id, 3)} />
-                      </td>
-
-                      <td className="px-1 py-1.5 text-center">
-                        <button 
-                          onClick={() => handleEdit(school)}
-                          className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                          title="Kemas kini"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={12} className="px-6 py-8 text-center text-slate-500">
-                      Tiada rekod dijumpai.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="bg-slate-50 px-4 md:px-6 py-4 border-t border-slate-200 flex flex-col md:flex-row gap-4 justify-between items-center">
-            <p className="text-sm text-slate-500 text-center md:text-left">Menunjukkan {filteredSchools.length} daripada {inspections.length} rekod</p>
-            <div className="flex gap-2 w-full md:w-auto justify-center">
-              <button className="px-3 py-1 border border-slate-300 rounded text-sm text-slate-600 disabled:opacity-50" disabled>Sebelumnya</button>
-              <button className="px-3 py-1 border border-slate-300 rounded text-sm text-slate-600 disabled:opacity-50" disabled>Seterusnya</button>
+        /* TABLE VIEW - Grouped */
+        <div>
+           {filteredSchools.length > 0 ? (
+             <>
+               {renderTableSection('Kantin Sekolah', groupedInspections.kantin, Utensils, 'bg-blue-50', 'text-blue-800')}
+               {renderTableSection('Dapur Asrama (DAS)', groupedInspections.das, Home, 'bg-purple-50', 'text-purple-800')}
+               {renderTableSection('Institusi & Lain-lain', groupedInspections.lain, Briefcase, 'bg-orange-50', 'text-orange-800')}
+             </>
+           ) : (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+               <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+               <h3 className="text-lg font-medium text-slate-900">Tiada Rekod Dijumpai</h3>
+               <p className="text-slate-500">Cuba ubah carian atau penapis kategori anda.</p>
             </div>
-          </div>
+           )}
         </div>
       ) : (
         /* CALENDAR VIEW */
@@ -565,6 +591,7 @@ const SchoolInspections: React.FC = () => {
                   >
                     <option value="SEKOLAH KPM">SEKOLAH KPM</option>
                     <option value="SEKOLAH JHEAIK">SEKOLAH JHEAIK</option>
+                    <option value="ASRAMA">ASRAMA (DAS)</option>
                     <option value="FASILITI KKM">FASILITI KKM</option>
                     <option value="IPT">IPT</option>
                     <option value="SWASTA">SWASTA</option>

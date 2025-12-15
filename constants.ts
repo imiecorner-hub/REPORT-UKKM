@@ -1,5 +1,5 @@
 
-import { WeeklySchedule, SchoolInspection, SampleRecord } from './types';
+import { WeeklySchedule, SchoolInspection, SampleRecord, RampasanRecord } from './types';
 
 export const WEEKLY_SCHEDULE: WeeklySchedule[] = [
   { week: 1, startDate: '30/12/2024', endDate: '5/1/2025', month: 1 },
@@ -18,6 +18,7 @@ export const WEEKLY_SCHEDULE: WeeklySchedule[] = [
 ];
 
 export const SCHOOL_INSPECTIONS: SchoolInspection[] = [
+  // Existing Data (1-13)
   { id: 1, name: 'SK SIK', category: 'SEKOLAH KPM', visitDate1: '28/4/2025', visitDate2: '2/9/2025' },
   { id: 2, name: 'SK SIK DALAM', category: 'SEKOLAH KPM', visitDate1: '16/4/2025' },
   { id: 3, name: 'SJK(C) CHUNG HWA', category: 'SEKOLAH KPM', visitDate1: '30/6/2025' },
@@ -31,6 +32,51 @@ export const SCHOOL_INSPECTIONS: SchoolInspection[] = [
   { id: 11, name: 'SK GULAU', category: 'SEKOLAH KPM', visitDate1: '24/6/2025' },
   { id: 12, name: 'SK AMPANG MUDA', category: 'SEKOLAH KPM', visitDate1: '28/5/2025', visitDate2: '28/10/2025' },
   { id: 13, name: 'SK TELOI TUA', category: 'SEKOLAH KPM', visitDate1: '13/5/2025' },
+  
+  // New Data - SK Series (14-23)
+  { id: 14, name: 'SK FELDA TELOI TIMUR', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 15, name: 'SK CHEMARA', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 16, name: 'SK HAJI HUSSAIN', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 17, name: 'SK BANDAR BARU BERIS JAYA', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 18, name: 'SK JENERI', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 19, name: 'SK PADANG CHICAK', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 20, name: 'SK KAMPUNG BETONG', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 21, name: 'SK KALAI', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 22, name: 'SK KOTA BUKIT', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 23, name: 'SK DANGLAU', category: 'SEKOLAH KPM', visitDate1: '' },
+
+  // New Data - SM Series (24-31)
+  { id: 24, name: 'SM SIK', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 25, name: 'SM AGAMA SIK', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 26, name: 'SM SERI ENGGANG', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 27, name: 'SM CHEPIR', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 28, name: 'SM AGAMA MAKTAB MAHMUD', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 29, name: 'SM BATU 8', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 30, name: 'SM GULAU', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 31, name: 'SM JENERI', category: 'SEKOLAH KPM', visitDate1: '' },
+
+  // New Data - DAS (Asrama) Series (32-40)
+  { id: 32, name: 'DAS SM SIK', category: 'ASRAMA', visitDate1: '' },
+  { id: 33, name: 'DAS SM AGAMA SIK', category: 'ASRAMA', visitDate1: '' },
+  { id: 34, name: 'DAS SM SERI ENGGANG', category: 'ASRAMA', visitDate1: '' },
+  { id: 35, name: 'DAS SM CHEPIR', category: 'ASRAMA', visitDate1: '' },
+  { id: 36, name: 'DAS SM AGAMA MAKTAB MAHMUD', category: 'ASRAMA', visitDate1: '' },
+  { id: 37, name: 'DAS SK GULAU', category: 'ASRAMA', visitDate1: '' },
+  { id: 38, name: 'DAS SM GULAU', category: 'ASRAMA', visitDate1: '' },
+  { id: 39, name: 'DAS SM JENERI', category: 'ASRAMA', visitDate1: '' },
+  { id: 40, name: 'DAS SK PAYA TERENDAM', category: 'ASRAMA', visitDate1: '' },
+  
+  // Religious Schools & DAS
+  { id: 41, name: 'SM AGAMA IRSYADIAH', category: 'SEKOLAH KPM', visitDate1: '' },
+  { id: 42, name: 'DAS SM AGAMA IRSYADIAH', category: 'ASRAMA', visitDate1: '' },
+  { id: 43, name: 'MAAHAD DINI SULTAN ABDUL HALIM', category: 'SEKOLAH JHEAIK', visitDate1: '' },
+
+  // Facilities & IPT
+  { id: 44, name: 'DAPUR HOSPITAL SIK', category: 'FASILITI KKM', visitDate1: '' },
+  { id: 45, name: 'KANTIN HOSPITAL SIK (KAFE)', category: 'SWASTA', visitDate1: '' },
+  { id: 46, name: 'KAFE KEDA (IPTA)', category: 'IPT', visitDate1: '' },
+  { id: 47, name: 'KAFE IKM (IPTA)', category: 'IPT', visitDate1: '' },
+  { id: 48, name: 'KAFE KOLEJ KOMUNITI', category: 'IPT', visitDate1: '' },
 ];
 
 export const SAMPLES: SampleRecord[] = [
@@ -58,6 +104,53 @@ export const SAMPLES: SampleRecord[] = [
     status: 'BERJAYA',
     notes: 'Resample - Pos Laju 1/12/2025'
   },
+];
+
+export const RAMPASAN_DATA: RampasanRecord[] = [
+  {
+    id: 1,
+    date: '24/02/2025',
+    premise: 'Pasar Mini Selamat',
+    item: 'Roti Gardenia Coklat',
+    quantity: 15,
+    unit: 'Bungkus',
+    value: 22.50,
+    reason: 'TAMAT TARIKH',
+    act: 'Peraturan 14(9)(b)'
+  },
+  {
+    id: 2,
+    date: '10/03/2025',
+    premise: 'Kedai Runcit Ah Hock',
+    item: 'Kicap Masin Cap Kipas',
+    quantity: 8,
+    unit: 'Botol',
+    value: 48.00,
+    reason: 'KEMIK/ROSAK',
+    act: 'Seksyen 13B(2)(e)'
+  },
+  {
+    id: 3,
+    date: '15/03/2025',
+    premise: 'Pasaraya Bintang',
+    item: 'Sardin Tin Ayam Brand',
+    quantity: 12,
+    unit: 'Tin',
+    value: 60.00,
+    reason: 'KEMIK/ROSAK',
+    act: 'Seksyen 13B(2)(e)'
+  },
+   {
+    id: 4,
+    date: '20/03/2025',
+    premise: 'Kedai Runcit Pak Mat',
+    item: 'Air Kotak Drinho',
+    quantity: 24,
+    unit: 'Kotak',
+    value: 36.00,
+    reason: 'TAMAT TARIKH',
+    act: 'Peraturan 14(9)(b)'
+  }
 ];
 
 export const STAT_CATEGORIES = [
